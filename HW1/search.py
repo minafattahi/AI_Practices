@@ -121,6 +121,37 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+        from game import Directions
+
+    fringe = util.PriorityQueue() 
+    visitedList = []
+
+    #push to queue
+    fringe.push((problem.getStartState(),[],0),0) # push starting point with priority num of 0
+    #pop 
+    (state,toDirection,toCost) = fringe.pop()
+    #add to list
+    visitedList.append((state,toCost))
+
+    while not problem.isGoalState(state):
+        successors = problem.getSuccessors(state)
+        for son in successors:
+            visitedExist = False
+            total_cost = toCost + son[2]
+            for (visitedState,visitedToCost) in visitedList:
+                # the point gets added if either the child's not checked or has been checked with a higher price
+                if (son[0] == visitedState) and (total_cost >= visitedToCost): 
+                    visitedExist = True # the node we wanted is checked
+                    break
+
+            if not visitedExist:        
+                # push based on its total cost and then add to list
+                fringe.push((son[0],toDirection + [son[1]],toCost + son[2]),toCost + son[2]) 
+                visitedList.append((son[0],toCost + son[2]))
+
+        (state,toDirection,toCost) = fringe.pop()
+
+    return toDirection
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
