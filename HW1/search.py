@@ -87,6 +87,30 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
+    from game import Directions
+
+    fringe = util.Stack()
+    visitedList = []
+
+    #push to stack
+    fringe.push((problem.getStartState(),[],0))
+    #pop
+    (state,toDirection,toCost) = fringe.pop()
+    #add to checked list
+    visitedList.append(state)
+
+    #while the G is not found get the node's children
+    while not problem.isGoalState(state):
+        successors = problem.getSuccessors(state) 
+        for son in successors:
+            #if the child's not been checked push it to stack and then add the node to the checked list
+            if (not son[0] in visitedList) or (problem.isGoalState(son[0])):
+                fringe.push((son[0],toDirection + [son[1]],toCost + son[2])) 
+                visitedList.append(son[0])
+        (state,toDirection,toCost) = fringe.pop()
+
+    return toDirection
+
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
@@ -164,6 +188,34 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+       from game import Directions
+
+    fringe = util.PriorityQueue() 
+    visitedList = []
+
+    fringe.push((problem.getStartState(),[],0),0 + heuristic(problem.getStartState(),problem)) # push starting point with priority num of 0
+    (state,toDirection,toCost) = fringe.pop()
+    visitedList.append((state,toCost + heuristic(problem.getStartState(),problem)))
+
+    while not problem.isGoalState(state): 
+        successors = problem.getSuccessors(state)
+        for son in successors:
+            visitedExist = False
+            total_cost = toCost + son[2]
+            for (visitedState,visitedToCost) in visitedList:
+                #If the child's not been checked or if it's been checked with a higher cost
+                if (son[0] == visitedState) and (total_cost >= visitedToCost): 
+                    visitedExist = True
+                    break
+
+            if not visitedExist:        
+                # push based on the totsl cost and add to the checked list
+                fringe.push((son[0],toDirection + [son[1]],toCost + son[2]),toCost + son[2] + heuristic(son[0],problem)) 
+                visitedList.append((son[0],toCost + son[2])) 
+
+        (state,toDirection,toCost) = fringe.pop()
+
+    return toDirection
     util.raiseNotDefined()
 
 
